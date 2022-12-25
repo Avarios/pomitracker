@@ -1,14 +1,23 @@
 <script lang="ts">
 	import logo from "$lib/images/appicon.png";
-	import { ButtonLink} from ".";
+	import { ButtonLink } from ".";
 	import type { User } from "$lib/models";
-	let openUserMenu = false;
-	export let CognitoClientId:string;
-	export let CognitoOauth2Url:string
-	export let User:User;
-	const logout = () => {
-		openUserMenu = false
-	}
+	import { invalidateAll } from '$app/navigation';
+	import { PUBLIC_LOCALAUTHENTICATION_CALLBACK_URL } from '$env/static/public'
+	export let CognitoClientId: string;
+	export let CognitoOauth2Url: string;
+	export let User: User|undefined;
+
+	let isUserMenuOpen = false;
+
+	const logout = async () => {
+		await invalidateAll()
+		isUserMenuOpen = false;
+	};
+
+	const toggleMenu = () => {
+		isUserMenuOpen = !isUserMenuOpen;
+	};
 </script>
 
 <header>
@@ -22,7 +31,10 @@
 					<div class="hidden md:block">
 						<div class="ml-10 flex items-baseline space-x-4">
 							{#if User}
-								<ButtonLink buttonHeight="10" href="/statistics">
+								<ButtonLink
+									buttonHeight="10"
+									href="/statistics"
+								>
 									Statistics
 								</ButtonLink>
 							{/if}
@@ -60,8 +72,7 @@
 							<div>
 								{#if User}
 									<button
-										on:click={() =>
-											(openUserMenu = !openUserMenu)}
+										on:click={toggleMenu}
 										type="button"
 										class="flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
 										id="user-menu-button"
@@ -85,30 +96,31 @@
 									>
 										<ButtonLink
 											buttonHeight="10"
-											href={`${CognitoOauth2Url}/authorize?client_id=${CognitoClientId}&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:5173/login/callback`}
+											href={`${CognitoOauth2Url}/authorize?client_id=${CognitoClientId}&response_type=code&scope=email+openid+profile&redirect_uri=http://localhost:5173${PUBLIC_LOCALAUTHENTICATION_CALLBACK_URL}`}
 										>
 											Login/Register
 										</ButtonLink>
 									</div>
 								{/if}
 							</div>
-							{#if openUserMenu}
+							{#if isUserMenuOpen}
 								<div
-									on:mouseleave={() => (openUserMenu = false)}
+									on:mouseleave={toggleMenu}
 									class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
 									role="menu"
 									aria-orientation="vertical"
 									aria-labelledby="user-menu-button"
 									tabindex="-1"
 								>
-									<a
-										href="/"
+									<div
 										class="block px-4 py-2 text-sm text-gray-700"
 										role="menuitem"
 										tabindex="-1"
-										id="user-menu-item-0">Hi { User?.username}</a
+										id="user-menu-item-0"
 									>
-									<hr/>
+										Hi {User?.username}
+									</div>
+									<hr />
 									<a
 										href="/"
 										class="block px-4 py-2 text-sm text-gray-700"
@@ -117,8 +129,9 @@
 										id="user-menu-item-1">Settings</a
 									>
 
-									<a on:click={logout}
-										href="/"
+									<a
+										on:click={logout}
+										href="/authentication/logout"
 										class="block px-4 py-2 text-sm text-gray-700"
 										role="menuitem"
 										tabindex="-1"

@@ -4,6 +4,6 @@
 declare namespace App {
     interface Locals {
         debug: boolean,
-        user: import('$lib/models').User
+        user: import('$lib/models').User|undefined
     }
 }
