@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppBar } from "$lib/components";
+  import { AppBar, LoadingIndicator } from "$lib/components";
   import type { PageData } from "./$types";
   export let data: PageData;
 </script>
@@ -11,6 +11,8 @@
     User={data.user}
   />
 </header>
-<main>
-  <slot />
-</main>
+<LoadingIndicator>
+  <main>
+    <slot />
+  </main>
+</LoadingIndicator>
