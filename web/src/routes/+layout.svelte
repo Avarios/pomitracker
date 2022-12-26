@@ -11,8 +11,10 @@
     User={data.user}
   />
 </header>
-<LoadingIndicator>
+
   <main>
-    <slot />
+    <LoadingIndicator>
+      <slot />
+    </LoadingIndicator>
+    
   </main>
-</LoadingIndicator>
